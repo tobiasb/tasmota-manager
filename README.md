@@ -5,7 +5,7 @@ Allows you to apply a configuration to your Tasmota devices without necessarily 
 - Individual devices (if you do know the IP address)
 - Bulk update of devices within the network
 
-__Requires the web aPI to be enabled on the Tasmota device__
+__Requires the HTTP API to be enabled on the Tasmota device__
 
 ## Getting started
 
