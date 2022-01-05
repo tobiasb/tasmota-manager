@@ -1,9 +1,9 @@
-# Manage your devices running Tasmota
+# Bulk configure your devices running Tasmota
 
 Allows you to apply a configuration to your Tasmota devices without necessarily knowing their IP addresses. Supports
 
 - Individual devices (if you do know the IP address)
-- Bulk update of devices within the network
+- Bulk update of devices within the network (by CIDR)
 
 __Requires the HTTP API to be enabled on the Tasmota device__
 
