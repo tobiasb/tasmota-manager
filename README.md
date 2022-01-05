@@ -14,8 +14,8 @@ $ pipenv run python manage-tasmotas.py --help
 Usage: manage-tasmotas.py [OPTIONS]
 
 Options:
-  --ip TEXT      IP address of individual device to update
-  --config TEXT  Path to configuration file  [required]
+  --ip TEXT      IP address of an individual device to update
+  --config TEXT  Path to configuration file [required]
   --cidr TEXT    CIDR to scan for Tasmota devices to update
   --help         Show this message and exit.
 ```

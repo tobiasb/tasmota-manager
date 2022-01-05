@@ -7,10 +7,11 @@ import requests
 
 
 def update_by_ip(ip, configs):
+
     try:
         res = requests.get(url=f'http://{ip}/cm?cmnd=' 'DeviceName' '', timeout=(1, 5))
         if res.status_code >= 300:
-            print(f'{ip} returned {res.status_code}')
+            print(f'{ip} device discovery returned {res.status_code}, probably not Tasmota')
             return
         device_name = res.json()["DeviceName"]
         device_id = device_name.split(' ')[-1]
@@ -21,15 +22,15 @@ def update_by_ip(ip, configs):
         res = requests.post(url=f'http://{ip}/cm?cmnd={cmd}')
 
         if res.status_code == 200:
-            print(f'{device_name} at {ip} updated!')
+            print(f'{ip} ({device_name}) updated! ✅')
         else:
-            print(f'{device_name} at {ip} responded with {res.status_code}')
-    except Exception:
-        print(f'{ip} unreachable')
+            print(f'{ip} ({device_name}) responded with {res.status_code} 🔥')
+    except requests.exceptions.RequestException:
+        print(f'{ip} unreachable, probably not Tasmota')
 
 
 @click.command()
-@click.option('--ip', default=None, help='IP address of individual device to update')
+@click.option('--ip', default=None, help='IP address of an individual device to update')
 @click.option('--config', required=True, help='Path to configuration file')
 @click.option('--cidr', default='192.168.1.0/24', help='CIDR to scan for Tasmota devices to update')
 def update(ip, config, cidr):
@@ -39,7 +40,7 @@ def update(ip, config, cidr):
     if ip:
         update_by_ip(ip, configs)
     else:
-        for ip in ipaddress.IPv4Network(cidr):
+        for ip in list(ipaddress.IPv4Network(cidr))[1:]:
             update_by_ip(str(ip), configs)
 
 
