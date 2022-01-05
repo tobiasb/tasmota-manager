@@ -13,16 +13,42 @@ __Requires the HTTP API to be enabled on the Tasmota device__
 $ pipenv install
 $ pipenv run python manage-tasmotas.py --help
 
-Usage: manage-tasmotas.py [OPTIONS]
+Usage: manage-tasmotas.py [OPTIONS] COMMAND [ARGS]...
+
+Options:
+  --log-level TEXT
+  --help            Show this message and exit.
+
+Commands:
+  discover
+  update
+```
+
+### Discover
+Finds Tasmota devices and prints their name.
+
+```
+$ pipenv run python manage-tasmotas.py discover --help
+Usage: manage-tasmotas.py discover [OPTIONS]
+
+Options:
+  --cidr TEXT          CIDR to scan for Tasmota devices to update
+  --web-password TEXT  WebPassword to use when calling Tasmota API
+  --help               Show this message and exit.
+```
+
+### Update
+Finds and updates Tasmota devices.
+
+```
+$ pipenv run python manage-tasmotas.py update --help
+Usage: manage-tasmotas.py update [OPTIONS]
 
 Options:
   --ip TEXT            IP address of an individual device to update
   --config TEXT        Path to configuration file  [required]
   --cidr TEXT          CIDR to scan for Tasmota devices to update
   --web-password TEXT  WebPassword to use when calling Tasmota API
-  --log-level TEXT
-  --dry                Dry run only, only output discovered devices, will not
-                       update their configuration
   --help               Show this message and exit.
 ```
 
@@ -45,7 +71,7 @@ The config file supports default values that apply to all devices as well as dev
         "TimeStd": "0,0,10,1,3,-480",
         "ntpserver": "pool.ntp.org",
         "SetOption65": "1",
-        "WebPassword": "password",
+        "WebPassword": "...",
         ...
     },
     "<Tasmota friendly-name>": {
