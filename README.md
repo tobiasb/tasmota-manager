@@ -5,6 +5,8 @@ Allows you to apply a configuration to your Tasmota devices without necessarily 
 - Individual devices (if you do know the IP address)
 - Bulk update of devices within the network
 
+__Requires the web aPI to be enabled on the Tasmota device__
+
 ## Getting started
 
 ```
@@ -48,7 +50,7 @@ The config file supports default values that apply to all devices as well as dev
 }
 ```
 
-Use the Tasmota friendly-name as the key when overriding configuration values for a specific device.
+Use the Tasmota friendly-name as the key when overriding configuration values for a specific device. See https://tasmota.github.io/docs/Commands/ for the list of commands.
 
 ## Housekeeping
 
