@@ -1,9 +1,10 @@
+import ipaddress
 import json
 from urllib.parse import quote_plus
 
 import click
 import requests
-import ipaddress
+
 
 def update_by_ip(ip, configs):
     try:

@@ -49,3 +49,7 @@ The config file supports default values that apply to all devices as well as dev
 ```
 
 Use the Tasmota friendly-name as the key when overriding configuration values for a specific device.
+
+## Housekeeping
+
+`black --skip-string-normalization --line-length 120 . && isort .`
