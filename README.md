@@ -16,10 +16,14 @@ $ pipenv run python manage-tasmotas.py --help
 Usage: manage-tasmotas.py [OPTIONS]
 
 Options:
-  --ip TEXT      IP address of an individual device to update
-  --config TEXT  Path to configuration file [required]
-  --cidr TEXT    CIDR to scan for Tasmota devices to update
-  --help         Show this message and exit.
+  --ip TEXT            IP address of an individual device to update
+  --config TEXT        Path to configuration file  [required]
+  --cidr TEXT          CIDR to scan for Tasmota devices to update
+  --web-password TEXT  WebPassword to use when calling Tasmota API
+  --log-level TEXT
+  --dry                Dry run only, only output discovered devices, will not
+                       update their configuration
+  --help               Show this message and exit.
 ```
 
 The config file supports default values that apply to all devices as well as device specific overrides. It looks like this:
@@ -41,6 +45,7 @@ The config file supports default values that apply to all devices as well as dev
         "TimeStd": "0,0,10,1,3,-480",
         "ntpserver": "pool.ntp.org",
         "SetOption65": "1",
+        "WebPassword": "password",
         ...
     },
     "<Tasmota friendly-name>": {
