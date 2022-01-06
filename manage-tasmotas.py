@@ -6,6 +6,8 @@ from urllib.parse import quote_plus
 import click
 import requests
 
+CIDR_DEFAULT = '192.168.1.0/24'
+
 
 def probe_ip(ip, web_password):
     try:
@@ -52,7 +54,9 @@ def cli(log_level):
 @cli.command()
 @click.option('--ip', default=None, help='IP address of an individual device to update')
 @click.option('--config', required=True, help='Path to configuration file')
-@click.option('--cidr', default='192.168.1.0/24', help='CIDR to scan for Tasmota devices to update')
+@click.option(
+    '--cidr', default=CIDR_DEFAULT, help=f'CIDR to scan for Tasmota devices to update (default {CIDR_DEFAULT})'
+)
 @click.option('--web-password', help='WebPassword to use when calling Tasmota API')
 def update(ip, config, cidr, web_password):
 
@@ -60,10 +64,12 @@ def update(ip, config, cidr, web_password):
         configs = json.loads(f.read())
 
     if ip:
+        logging.info(f'Probing for a Tasmota device at {ip}...')
         is_tasmota, device_name = probe_ip(ip, web_password)
         if is_tasmota:
             update_by_ip(ip, device_name, configs, web_password)
     else:
+        logging.info(f'Probing for Tasmota devices within CIDR {cidr}...')
         for ip in list(ipaddress.IPv4Network(cidr))[1:]:
             is_tasmota, device_name = probe_ip(ip, web_password)
             if is_tasmota:
@@ -71,9 +77,10 @@ def update(ip, config, cidr, web_password):
 
 
 @cli.command()
-@click.option('--cidr', default='192.168.1.0/24', help='CIDR to scan for Tasmota devices to update')
+@click.option('--cidr', default=CIDR_DEFAULT, help='CIDR to scan for Tasmota devices in (default {CIDR_DEFAULT})')
 @click.option('--web-password', help='WebPassword to use when calling Tasmota API')
 def discover(cidr, web_password):
+    logging.info(f'Probing for Tasmota devices within CIDR {cidr}...')
 
     for ip in list(ipaddress.IPv4Network(cidr))[1:]:
         probe_ip(ip, web_password)
