@@ -28,6 +28,7 @@ Options:
 Commands:
   discover
   update
+  backup
 ```
 
 ### Discover
@@ -58,6 +59,22 @@ Options:
   --config TEXT        Path to configuration file  [required]
   --cidr TEXT          CIDR to scan for Tasmota devices to update (default
                        192.168.1.0/24)
+  --web-password TEXT  WebPassword to use when calling Tasmota API
+  --help               Show this message and exit.
+```
+
+### Backup
+
+Backup Tasmota configurations, either by specifying an individual IP or by CIDR.
+
+```
+$ pipenv run python manage-tasmotas.py backup --help
+Usage: manage-tasmotas.py backup [OPTIONS] PATH_TO_TARGET
+
+Options:
+  --ip TEXT            IP address of an individual device to update
+  --cidr TEXT          CIDR to scan for Tasmota devices in (default
+                       {CIDR_DEFAULT})
   --web-password TEXT  WebPassword to use when calling Tasmota API
   --help               Show this message and exit.
 ```
@@ -101,4 +118,4 @@ See https://tasmota.github.io/docs/Commands/ for the full list of commands.
 
 ## Housekeeping
 
-`black --skip-string-normalization --line-length 120 . && isort .`
+`black --line-length 120 . && isort .`

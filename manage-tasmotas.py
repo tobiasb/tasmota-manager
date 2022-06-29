@@ -1,6 +1,7 @@
 import ipaddress
 import json
 import logging
+import os
 from urllib.parse import quote_plus
 
 import click
@@ -84,6 +85,42 @@ def discover(cidr, web_password):
 
     for ip in list(ipaddress.IPv4Network(cidr))[1:]:
         probe_ip(ip, web_password)
+
+
+def download_backup(ip, device_name: str, target, web_password):
+    try:
+        auth = ("admin", web_password) if web_password else None
+
+        res = requests.get(url=f"http://{ip}/dl", auth=auth)
+
+        if res.status_code == 200:
+            file_name = device_name.replace(" ", "_").lower() + ".dmp"
+            with open(os.path.join(target, file_name), "wb") as f:
+                f.write(res.content)
+            logging.info(f"{ip} ({device_name}) backup downloaded! ✅")
+        else:
+            logging.error(f"{ip} ({device_name}) responded with {res.status_code} 🔥")
+    except requests.exceptions.RequestException:
+        logging.debug(f"{ip} unreachable, probably not Tasmota")
+
+
+@cli.command()
+@click.argument("path-to-target")
+@click.option("--ip", default=None, help="IP address of an individual device to update")
+@click.option("--cidr", default=CIDR_DEFAULT, help="CIDR to scan for Tasmota devices in (default {CIDR_DEFAULT})")
+@click.option("--web-password", help="WebPassword to use when calling Tasmota API")
+def backup(path_to_target, ip, cidr, web_password):
+    if ip:
+        logging.info(f"Creating configuration backup of Tasmota device at {ip}...")
+        is_tasmota, device_name = probe_ip(ip, web_password)
+        if is_tasmota:
+            download_backup(ip, device_name, path_to_target, web_password)
+    else:
+        logging.info(f"Creating configuration backups of Tasmota devices within CIDR {cidr}...")
+        for ip in list(ipaddress.IPv4Network(cidr))[1:]:
+            is_tasmota, device_name = probe_ip(ip, web_password)
+            if is_tasmota:
+                download_backup(ip, device_name, path_to_target, web_password)
 
 
 if __name__ == "__main__":
