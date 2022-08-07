@@ -1,10 +1,10 @@
 import ipaddress
-import json
 import logging
 import os
 from urllib.parse import quote_plus
 
 import click
+import json5 as json
 import requests
 
 CIDR_DEFAULT = "192.168.1.0/24"
@@ -14,7 +14,7 @@ def probe_ip(ip, web_password):
     try:
         credentials = f"user=admin&password={web_password}&" if web_password else ""
 
-        res = requests.get(url=f"http://{ip}/cm?{credentials}cmnd=" "DeviceName" "", timeout=(1, 5))
+        res = requests.get(url=f"http://{ip}/cm?{credentials}cmnd=" "DeviceName" "", timeout=(1, 1))
         if res.status_code >= 300:
             logging.warning(
                 f"{ip} device discovery returned {res.status_code}, possibly Tasmota. WebPassword set maybe? ⚠️"
@@ -58,11 +58,12 @@ def cli(log_level):
 @click.option(
     "--cidr", default=CIDR_DEFAULT, help=f"CIDR to scan for Tasmota devices to update (default {CIDR_DEFAULT})"
 )
-@click.option("--web-password", help="WebPassword to use when calling Tasmota API")
-def update(ip, config, cidr, web_password):
+def update(ip, config, cidr):
 
     with open(config, "r") as f:
-        configs = json.loads(f.read())
+        json_content = json.loads(f.read())
+        configs = json_content["configs"]
+        web_password = json_content["web_password"]
 
     if ip:
         logging.info(f"Probing for a Tasmota device at {ip}...")
@@ -82,9 +83,12 @@ def update(ip, config, cidr, web_password):
 @click.option("--web-password", help="WebPassword to use when calling Tasmota API")
 def discover(cidr, web_password):
     logging.info(f"Probing for Tasmota devices within CIDR {cidr}...")
-
+    counter = 0
     for ip in list(ipaddress.IPv4Network(cidr))[1:]:
-        probe_ip(ip, web_password)
+        if probe_ip(ip, web_password)[0]:
+            counter += 1
+
+    logging.info(f"Found {counter} devices!")
 
 
 def download_backup(ip, device_name: str, target, web_password):
