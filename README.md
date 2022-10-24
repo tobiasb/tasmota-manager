@@ -59,13 +59,14 @@ Options:
   --config TEXT        Path to configuration file  [required]
   --cidr TEXT          CIDR to scan for Tasmota devices to update (default
                        192.168.1.0/24)
-  --web-password TEXT  WebPassword to use when calling Tasmota API
   --help               Show this message and exit.
 ```
 
 ### Backup
 
 Backup Tasmota configurations, either by specifying an individual IP or by CIDR.
+
+Note, when using the `--upgrade` flag, no other configuration will be applied. To apply configuration, run without flag first.
 
 ```
 $ pipenv run python manage-tasmotas.py backup --help
@@ -76,6 +77,7 @@ Options:
   --cidr TEXT          CIDR to scan for Tasmota devices in (default
                        {CIDR_DEFAULT})
   --web-password TEXT  WebPassword to use when calling Tasmota API
+  --upgrade            OTA upgrade device to latest firmware
   --help               Show this message and exit.
 ```
 
@@ -84,7 +86,9 @@ Options:
 The config file supports default values that apply to all devices as well as device specific overrides. The JSON contains dictionaries with key-value pairs of individual Tasmota commands. It looks like the following. Store it in a file and use it with the `--config` option when using this tool.
 
 ```
-{
+{ 
+  "web_password": "<your tasmota admin user password>",
+  "configs": {
     "default": {
         "mqtthost": "mqtt-host",
         "mqttport": "1883",
@@ -107,6 +111,7 @@ The config file supports default values that apply to all devices as well as dev
         "PowerOnState": "0",
         ...
     }
+  }
 }
 ```
 

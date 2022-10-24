@@ -33,13 +33,18 @@ def update_by_ip(ip, device_name, configs, web_password):
     try:
         credentials = f"user=admin&password={web_password}&" if web_password else ""
 
+        has_device_specific_config = device_name in configs
         config = {**configs["default"], **configs.get(device_name, {})}
+
+        logging.debug(f"Using configuration:\n{json.dumps(config, indent=4)}")
         cmd = quote_plus(f'Backlog {" ".join([ f"{k} {v};" for k,v in config.items() ])}')
 
         res = requests.post(url=f"http://{ip}/cm?{credentials}cmnd={cmd}")
 
         if res.status_code == 200:
-            logging.info(f"{ip} ({device_name}) updated! ✅")
+            logging.info(
+                f"{ip} ({device_name}) updated with {'device specific' if has_device_specific_config else 'common'} configuration! ✅"
+            )
         else:
             logging.error(f"{ip} ({device_name}) responded with {res.status_code} 🔥")
     except requests.exceptions.RequestException:
@@ -58,12 +63,21 @@ def cli(log_level):
 @click.option(
     "--cidr", default=CIDR_DEFAULT, help=f"CIDR to scan for Tasmota devices to update (default {CIDR_DEFAULT})"
 )
-def update(ip, config, cidr):
+@click.option("--upgrade", default=False, help="OTA upgrade device to latest firmware", is_flag=True)
+def update(ip, config, cidr, upgrade):
 
     with open(config, "r") as f:
         json_content = json.loads(f.read())
         configs = json_content["configs"]
         web_password = json_content["web_password"]
+
+    if upgrade:
+        logging.info("⚠️  Upgrading firmware OTA ⚠️")
+        configs = {
+            "default": {
+                "Upgrade": "1"
+            }
+        }
 
     if ip:
         logging.info(f"Probing for a Tasmota device at {ip}...")
@@ -79,7 +93,7 @@ def update(ip, config, cidr):
 
 
 @cli.command()
-@click.option("--cidr", default=CIDR_DEFAULT, help="CIDR to scan for Tasmota devices in (default {CIDR_DEFAULT})")
+@click.option("--cidr", default=CIDR_DEFAULT, help=f"CIDR to scan for Tasmota devices in (default {CIDR_DEFAULT})")
 @click.option("--web-password", help="WebPassword to use when calling Tasmota API")
 def discover(cidr, web_password):
     logging.info(f"Probing for Tasmota devices within CIDR {cidr}...")
@@ -111,7 +125,7 @@ def download_backup(ip, device_name: str, target, web_password):
 @cli.command()
 @click.argument("path-to-target")
 @click.option("--ip", default=None, help="IP address of an individual device to update")
-@click.option("--cidr", default=CIDR_DEFAULT, help="CIDR to scan for Tasmota devices in (default {CIDR_DEFAULT})")
+@click.option("--cidr", default=CIDR_DEFAULT, help=f"CIDR to scan for Tasmota devices in (default {CIDR_DEFAULT})")
 @click.option("--web-password", help="WebPassword to use when calling Tasmota API")
 def backup(path_to_target, ip, cidr, web_password):
     if ip:
