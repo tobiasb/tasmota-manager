@@ -7,6 +7,3 @@ name = "pypi"
 click = "*"
 requests = "*"
 json5 = "*"
-
-[requires]
-python_version = "3.8"
